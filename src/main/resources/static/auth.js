@@ -2,82 +2,67 @@ let isLoginMode = true;
 
 function toggleMode(){
 
-isLoginMode = !isLoginMode;
+    isLoginMode = !isLoginMode;
 
-document.getElementById("authTitle").innerText =
-isLoginMode ? "Login" : "Register";
+    document.getElementById("authTitle").innerText =
+    isLoginMode ? "Login" : "Register";
 
-document.getElementById("toggleText").innerText =
-isLoginMode ? "Don't have an account?" : "Already have an account?";
+    document.getElementById("toggleText").innerText =
+    isLoginMode ? "Don't have an account?" : "Already have an account?";
 
-document.getElementById("authMessage").innerText = "";
+    document.getElementById("authMessage").innerText = "";
 
 }
 
 
 async function handleAuth(){
 
-const username = document.getElementById("username").value
-const password = document.getElementById("password").value
+    const username = document.getElementById("username").value
+    const password = document.getElementById("password").value
 
-const messageEl = document.getElementById("authMessage")
+    const messageEl = document.getElementById("authMessage")
 
-if(!username || !password){
+    if(!username || !password){
+        messageEl.innerText="Please fill all fields"
+        return
+    }
 
-messageEl.innerText="Please fill all fields"
-return
+    const endpoint = isLoginMode ? "/api/auth/login" : "/api/auth/register"
 
-}
+    try{
+        // UPDATED: Pointing to your live Railway backend
+        const response = await fetch("https://study-planner-production-08d7.up.railway.app" + endpoint, {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({username,password})
+        })
 
-const endpoint = isLoginMode ? "/api/auth/login" : "/api/auth/register"
+        const text = await response.text()
 
-try{
+        if(response.ok){
+            messageEl.style.color="lightgreen"
+            messageEl.innerText=text
 
-const response = await fetch("http://localhost:8080"+endpoint,{
+            if(isLoginMode){
+                localStorage.setItem("loggedInUser",username)
 
-method:"POST",
+                setTimeout(()=>{
+                    window.location.href="index.html"
+                },1000)
 
-headers:{
-"Content-Type":"application/json"
-},
+            }else{
+                setTimeout(toggleMode,1500)
+            }
 
-body:JSON.stringify({username,password})
+        }else{
+            messageEl.style.color="red"
+            messageEl.innerText=text
+        }
 
-})
-
-const text = await response.text()
-
-if(response.ok){
-
-messageEl.style.color="lightgreen"
-
-messageEl.innerText=text
-
-if(isLoginMode){
-
-localStorage.setItem("loggedInUser",username)
-
-setTimeout(()=>{
-window.location.href="index.html"
-},1000)
-
-}else{
-
-setTimeout(toggleMode,1500)
-
-}
-
-}else{
-
-messageEl.style.color="red"
-messageEl.innerText=text
-
-}
-
-}catch(err){
-
-messageEl.innerText="Server connection failed"
-
-}
+    }catch(err){
+        messageEl.innerText="Server connection failed"
+    }
 
 }
