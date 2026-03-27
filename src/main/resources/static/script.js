@@ -4,7 +4,7 @@
 
 // ===== AUTH STATE =====
 let isLoginMode = true;
-const API_BASE = 'https://study-planner-production-08d7.up.railway.app';
+const API_BASE = '';
 
 // ===== AUTH: TOGGLE MODE =====
 function toggleMode() {
